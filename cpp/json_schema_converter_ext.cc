@@ -26,6 +26,7 @@ const std::unordered_map<JSONFormat, XMLToolCallingConverter::XMLWrapper>
           "\\\" string=\\\"\" (\"true\" | \"false\") \"\\\">",
           // TODO(Linzhang): we do not validate the string's value, and we accept both.
           "</｜DSML｜parameter>"}},
+        {JSONFormat::kGLMXML, {"<arg_key>", "</arg_key><arg_value>", "</arg_value>"}},
 };
 
 XMLToolCallingConverter::XMLToolCallingConverter(

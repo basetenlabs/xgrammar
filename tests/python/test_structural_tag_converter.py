@@ -432,6 +432,48 @@ def test_json_schema_style_deepseek_xml_format(
     check_stag_with_instance(stag_format, instance, is_accepted)
 
 
+# JSONSchemaFormat with style="glm_xml" (<arg_key>key</arg_key><arg_value>value</arg_value>)
+glm_xml_instance_is_accepted = [
+    ("<arg_key>name</arg_key><arg_value>Bob</arg_value><arg_key>age</arg_key><arg_value>\t100\n</arg_value>", True),
+    ("<arg_key>name</arg_key><arg_value>Bob</arg_value>\t\n<arg_key>age</arg_key><arg_value>\t100\n</arg_value>", True),
+    ("<arg_key>name</arg_key><arg_value>Bob</arg_value><arg_key>age</arg_key><arg_value>100</arg_value>", True),
+    (
+        """<arg_key>name</arg_key><arg_value><!DOCTYPE html>
+<html lang="en">
+  <body><h1>Hello</h1></body>
+</html></arg_value><arg_key>age</arg_key><arg_value>100</arg_value>""",
+        True,
+    ),
+]
+json_schema_style_glm_xml_stag_grammar = [
+    (
+        {
+            "type": "json_schema",
+            "json_schema": {
+                "type": "object",
+                "properties": {"name": {"type": "string"}, "age": {"type": "integer"}},
+                "required": ["name", "age"],
+            },
+            "style": "glm_xml",
+        },
+        None,  # Don't check exact grammar, just acceptance
+    )
+]
+
+
+@pytest.mark.parametrize(
+    "stag_format, expected_grammar", json_schema_style_glm_xml_stag_grammar
+)
+@pytest.mark.parametrize("instance, is_accepted", glm_xml_instance_is_accepted)
+def test_json_schema_style_glm_xml_format(
+    stag_format: Dict[str, Any], expected_grammar: str, instance: str, is_accepted: bool
+):
+    """Test JSONSchemaFormat with style='glm_xml' (<arg_key>key</arg_key><arg_value>value</arg_value>)."""
+    if expected_grammar is not None:
+        check_stag_with_grammar(stag_format, expected_grammar)
+    check_stag_with_instance(stag_format, instance, is_accepted)
+
+
 ebnf_grammar_stag_grammar = [
     (
         {
@@ -2872,6 +2914,23 @@ basic_structural_tags_instance_is_accepted = [
             style="deepseek_xml",
         ),
         '<｜DSML｜parameter name="name" string="true">value</param>',
+        False,
+    ),
+    # JSONSchemaFormat with style="glm_xml"
+    (
+        xgr.structural_tag.JSONSchemaFormat(
+            json_schema={"type": "object", "properties": {"name": {"type": "string"}}},
+            style="glm_xml",
+        ),
+        "<arg_key>name</arg_key><arg_value>value</arg_value>",
+        True,
+    ),
+    (
+        xgr.structural_tag.JSONSchemaFormat(
+            json_schema={"type": "object", "properties": {"name": {"type": "string"}}},
+            style="glm_xml",
+        ),
+        "<arg_key>name</arg_key><arg_value>value</arg_wrong>",
         False,
     ),
     # AnyTextFormat
