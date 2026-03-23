@@ -187,6 +187,7 @@ enum class JSONFormat : int {
   kQwenXML = 1,
   kMiniMaxXML = 2,
   kDeepSeekXML = 3,
+  kGLMXML = 4,
 };
 
 /*!
@@ -534,6 +535,14 @@ std::string MiniMaxXMLToolCallingToEBNF(const std::string& schema);
  * in DeepSeek xml style.
  */
 std::string DeepSeekXMLToolCallingToEBNF(const std::string& schema);
+
+/*!
+ * \brief Convert a function call to a Grammar.
+ * \param schema The schema of the parameters of the function call.
+ * \return The ebnf-grammar to match the requirements of the schema, and
+ * in GLM xml style.
+ */
+std::string GLMXMLToolCallingToEBNF(const std::string& schema);
 
 }  // namespace xgrammar
 
